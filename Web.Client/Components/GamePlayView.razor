@@ -1,0 +1,45 @@
+﻿@inject IGameStateService GameService
+@implements IDisposable
+
+<Loader Value="@GameService.Session">
+	<div tabindex="0" @onkeydown="OnKeyDown" @ref="gameContainer">
+		<Column Align="AlignItemsClass.Center" Gap="@GapClass.Large">
+			<GameBoard Session="@context" />
+			<Keyboard KeyStates="@context.VisibleKeyStates" OnKeyPress="HandleKey" />
+		</Column>
+	</div>
+</Loader>
+
+@code {
+	private ElementReference gameContainer;
+
+	protected override void OnInitialized()
+	{
+		GameService.OnChange += HandleGameStateChanged;
+	}
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			await gameContainer.FocusAsync();
+		}
+	}
+
+	private void HandleGameStateChanged()
+	{
+		InvokeAsync(StateHasChanged);
+	}
+
+	private async Task OnKeyDown(KeyboardEventArgs e) => await HandleKey(e.Key);
+
+	private async Task HandleKey(string key)
+	{
+		await GameService.HandleInputAsync(key);
+	}
+
+	public void Dispose()
+	{
+		GameService.OnChange -= HandleGameStateChanged;
+	}
+}

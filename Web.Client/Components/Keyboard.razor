@@ -1,0 +1,51 @@
+﻿@using Web.Client.Extensions
+
+<div class="keyboard">
+	<Column Gap="GapClass.Tiny" Align="AlignItemsClass.Center">
+		@foreach (var row in KeyboardLayout)
+		{
+			<Row Gap="GapClass.Tiny">
+				@foreach (var key in row)
+				{
+					@if (string.IsNullOrWhiteSpace(key))
+					{
+						<div class="fake-key" />
+					}
+					else
+					{
+						<button class="key @GetKeyStateClass(key)" @onclick="() => HandleKeyClick(key)" data-key="@key">
+							@key
+						</button>
+					}
+				}
+			</Row>
+		}
+	</Column>
+</div>
+
+@code {
+	[Parameter, EditorRequired] public IReadOnlyDictionary<char, LetterState> KeyStates { get; set; } = null!;
+	[Parameter, EditorRequired] public EventCallback<string> OnKeyPress { get; set; }
+
+	private static readonly string[][] KeyboardLayout =
+	[
+		["Q","W","E","R","T","Y","U","I","O","P"],
+		["", "A","S","D","F","G","H","J","K","L", ""],
+		["ENTER","Z","X","C","V","B","N","M","DEL"]
+	];
+
+	private CssClass GetKeyStateClass(string key)
+	{
+		if (key is "ENTER" or "DEL")
+		{
+			return LetterState.Pending.ToCssClass();
+		}
+
+		return KeyStates.TryGetValue(key[0], out var state)
+			? state.ToCssClass()
+			: LetterState.Pending.ToCssClass();
+	}
+
+	private Task HandleKeyClick(string key)
+		=> OnKeyPress.InvokeAsync(key);
+}

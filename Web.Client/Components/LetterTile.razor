@@ -1,0 +1,7 @@
+﻿<div class="@GuessLetter?.State.ToCssClass()">
+	@GuessLetter?.Letter
+</div>
+
+@code {
+    [Parameter, EditorRequired] public GuessLetter? GuessLetter { get; set; }
+}

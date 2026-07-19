@@ -1,0 +1,26 @@
+﻿@inject IGameStateService GameService
+
+<Loader Value="@GameService.Session">
+	<div>
+		<Column Align="AlignItemsClass.Center">
+			@if (context.State == SessionState.Won)
+			{
+				<Heading Level="2">you won! 🎉</Heading>
+			}
+			else
+			{
+				<Heading Level="2">game over</Heading>
+				<Paragraph>the word was: <strong>@context.TargetWord</strong></Paragraph>
+			}
+			<Row>
+				<Button Text="play again" OnClick="@StartGameAsync" />
+				<Button Text="main menu" OnClick="@ReturnToMainMenu" />
+			</Row>
+		</Column>
+	</div>
+</Loader>
+
+@code {
+	private async Task StartGameAsync() => await GameService.StartNewGameAsync();
+	private void ReturnToMainMenu() => GameService.ClearSession();
+}
