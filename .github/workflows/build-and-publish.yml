@@ -49,6 +49,7 @@ jobs:
         run: |
           dotnet-sonarscanner begin /k:"JHunter101_half-a-worlde" /o:"jhunter101"
           dotnet build
+          dotnet test --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
           dotnet-sonarscanner end
 
   tests:
