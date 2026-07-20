@@ -6,6 +6,10 @@
     <File Path="LICENSE.txt" />
     <File Path="README.md" />
   </Folder>
+  <Folder Name="/test/">
+    <Project Path="Core.Test/Core.Test.csproj" />
+    <Project Path="Test.Shared/Test.Shared.csproj" />
+  </Folder>
   <Project Path="Core/Core.csproj" />
   <Project Path="Web.Client/Web.Client.csproj" />
 </Solution>
