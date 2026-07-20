@@ -15,6 +15,7 @@ jobs:
     name: SonarQube Analysis
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       pull-requests: write
     steps:
       - name: Set up JDK 17
@@ -47,9 +48,9 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          dotnet-sonarscanner begin /k:"JHunter101_half-a-worlde" /o:"jhunter101"
+          dotnet-sonarscanner begin /k:"JHunter101_half-a-worlde" /o:"jhunter101" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
           dotnet build
-          dotnet test --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+          dotnet test --no-build --verbosity normal --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
           dotnet-sonarscanner end
 
       - name: Debug Coverage Files
