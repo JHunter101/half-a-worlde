@@ -8,6 +8,7 @@
   </Folder>
   <Folder Name="/test/">
     <Project Path="Core.Test/Core.Test.csproj" />
+    <Project Path="Specifications/Specifications.csproj" />
     <Project Path="Test.Shared/Test.Shared.csproj" />
   </Folder>
   <Project Path="Core/Core.csproj" />
