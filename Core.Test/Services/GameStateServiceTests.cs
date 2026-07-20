@@ -12,6 +12,7 @@ public sealed class GameStateServiceTests
     private readonly Mock<IWordService> _mockWordService = new();
     private readonly Mock<IGuessValidator> _mockValidator = new();
     private readonly Mock<IWordGenerator> _mockGenerator = new();
+    private readonly GameSettings _gameSettings = new() { WordLength = 5, MaxGuesses = 6 };
     private GameStateService _sut = null!;
 
     [TestInitialize]
@@ -24,14 +25,14 @@ public sealed class GameStateServiceTests
     }
 
     [TestMethod]
-    public async Task HandleInputAsync_WhenGuessInvalid_InvokesOnInvalidAndDoesNotAddGuessAsync()
+    public async Task HandleInputAsync_WhenEnterAndGuessInvalid_InvokesOnInvalidAndDoesNotAddGuessAsync()
     {
         _mockValidator.Setup(v => v.IsValid(It.IsAny<string>(), It.IsAny<int>())).ReturnsAsync(false);
 
         bool invalidCalled = false;
         _sut.OnInvalid += () => invalidCalled = true;
 
-        await _sut.StartNewGameAsync(new GameSettings { WordLength = 5, MaxGuesses = 6 });
+        await _sut.StartNewGameAsync(_gameSettings);
         Guard.IsNotNull(_sut.Session);
 
         foreach (char c in "ABCDE")
@@ -46,12 +47,12 @@ public sealed class GameStateServiceTests
     }
 
     [TestMethod]
-    public async Task HandleInputAsync_WhenGuessValid_AddsGuessAndInvokesOnSuccessAsync()
+    public async Task HandleInputAsync_WhenEnterAndGuessValid_AddsGuessAndInvokesOnSuccessAsync()
     {
         bool successCalled = false;
         _sut.OnSuccess += () => successCalled = true;
 
-        await _sut.StartNewGameAsync(new GameSettings { WordLength = 5, MaxGuesses = 6 });
+        await _sut.StartNewGameAsync(_gameSettings);
         Guard.IsNotNull(_sut.Session);
 
         foreach (char c in "APPLE")
@@ -67,6 +68,26 @@ public sealed class GameStateServiceTests
     }
 
     [TestMethod]
+    [DataRow("BACKSPACE")]
+    [DataRow("DEL")]
+    public async Task HandleInputAsync_WhenDeleteInput_RemovesLetterAndInvokesOnChangeAsync(string input)
+    {
+        await _sut.StartNewGameAsync(_gameSettings);
+        Guard.IsNotNull(_sut.Session);
+
+        await _sut.HandleInputAsync("A");
+
+        bool changed = false;
+        _sut.OnChange += () => changed = true;
+
+        await _sut.HandleInputAsync(input);
+
+        changed.ShouldBeTrue();
+        _sut.Session.Rows.Count.ShouldBe(0);
+        _sut.Session.CurrentInput.Length.ShouldBe(0);
+    }
+
+    [TestMethod]
     public async Task StartNewGameAsync_WhenHintsPending_ProcessesFirstHintAndLocksSessionAsync()
     {
         _mockGenerator.Setup(g => g.GenerateHintsAsync(It.IsAny<GameSettings>(), It.IsAny<string>()))
@@ -75,7 +96,7 @@ public sealed class GameStateServiceTests
         bool successCalled = false;
         _sut.OnSuccess += () => successCalled = true;
 
-        await _sut.StartNewGameAsync(new GameSettings { WordLength = 5, MaxGuesses = 6 });
+        await _sut.StartNewGameAsync(_gameSettings);
         Guard.IsNotNull(_sut.Session);
 
         successCalled.ShouldBeTrue();
@@ -89,7 +110,7 @@ public sealed class GameStateServiceTests
         _mockGenerator.Setup(g => g.GenerateHintsAsync(It.IsAny<GameSettings>(), It.IsAny<string>()))
             .ReturnsAsync(["APPLE", "APPLE"]);
 
-        await _sut.StartNewGameAsync(new GameSettings { WordLength = 5, MaxGuesses = 6 });
+        await _sut.StartNewGameAsync(_gameSettings);
         Guard.IsNotNull(_sut.Session);
 
         _sut.Session.Rows.Count.ShouldBe(1);
@@ -120,7 +141,7 @@ public sealed class GameStateServiceTests
     [TestMethod]
     public async Task HandleInputAsync_WhenSessionLocked_IgnoresInputAsync()
     {
-        await _sut.StartNewGameAsync(new GameSettings { WordLength = 5, MaxGuesses = 6 });
+        await _sut.StartNewGameAsync(_gameSettings);
         Guard.IsNotNull(_sut.Session);
 
         _sut.Session.Lock();

@@ -97,10 +97,7 @@ public class GameStateService(
 
     public void NotifyAnimationComplete()
     {
-        if (Session is null)
-        {
-            return;
-        }
+        Guard.IsNotNull(Session);
 
         Session.RevealKeyStates();
         OnChange?.Invoke();
@@ -117,10 +114,7 @@ public class GameStateService(
 
     private void ProcessNextHint()
     {
-        if (Session is null)
-        {
-            return;
-        }
+        Guard.IsNotNull(Session);
 
         string? hint = Session.TryGetNextHint();
         if (hint is not null)
@@ -131,10 +125,7 @@ public class GameStateService(
 
     private async Task TrySubmitWordAsync()
     {
-        if (Session is null)
-        {
-            return;
-        }
+        Guard.IsNotNull(Session);
 
         string word = Session.CurrentInput.ToUpperInvariant();
 
@@ -149,10 +140,7 @@ public class GameStateService(
 
     private void SubmitWord(string word)
     {
-        if (Session is null)
-        {
-            return;
-        }
+        Guard.IsNotNull(Session);
 
         var guess = GuessEvaluator.EvaluateGuess(word, Session.TargetWord);
         Session.AddGuess(guess);

@@ -23,5 +23,17 @@ public sealed class WordGeneratorTests
         hints.Count.ShouldBeLessThanOrEqualTo(_gameSettings.MaxGuesses / 3);
     }
 
+    [TestMethod]
+    public async Task WordGenerator_GenerateHintsAsync_WhenOnlyBadHintsExist_StillCapsHints()
+    {
+        var words = new HashSet<string> { "XXX", "YYY", "ZZZ", "WWW" };
+        _mockRepo.Setup(r => r.GetWordsAsync(3)).ReturnsAsync(words);
+
+        var hints = await Sut().GenerateHintsAsync(_gameSettings, "ABC");
+
+        hints.ShouldAllBe(h => words.Contains(h));
+        hints.Count.ShouldBeLessThanOrEqualTo(_gameSettings.MaxGuesses / 3);
+    }
+
     private WordGenerator Sut() => new(_mockRepo.Object);
 }
