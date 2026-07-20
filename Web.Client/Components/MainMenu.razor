@@ -14,7 +14,7 @@
 </div>
 
 @code {
-	private GameSettings _settings = new();
+	private readonly GameSettings _settings = new();
 
 	private static readonly HashSet<int> WordLengthOptions = [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
 	private static readonly HashSet<int> MaxAttemptOptions = [4, 5, 6, 7, 8];
