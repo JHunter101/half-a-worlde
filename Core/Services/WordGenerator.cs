@@ -12,7 +12,7 @@ public class WordGenerator(IWordRepository wordRepository) : IWordGenerator
 {
     public async Task<IReadOnlyList<string>> GenerateHintsAsync(GameSettings settings, string target)
     {
-        string[] candidates = [.. await wordRepository.GetWordsAsync(settings.WordLength)];
+        string[] candidates = [.. await wordRepository.GetAllowedHints(settings.WordLength)];
 
         Shuffle(candidates);
 
@@ -21,16 +21,25 @@ public class WordGenerator(IWordRepository wordRepository) : IWordGenerator
 
         foreach (string candidate in candidates)
         {
-            if (revealedLetters.Count > settings.TargetColoredLettersFromHints)
+            if (revealedLetters.Count >= settings.TargetColoredLettersFromHints)
             {
                 break;
             }
+
             if (hints.Count >= settings.MaxGuesses / 3)
             {
                 break;
             }
 
-            var guess = GuessEvaluator.EvaluateGuess(candidate, target);
+            GuessWord guess = GuessEvaluator.EvaluateGuess(candidate, target);
+
+            int exactMatches = guess.Letters.Count(l => l.State == LetterState.ExactMatch);
+
+            if (exactMatches > settings.MaxColoredLettersFromHints)
+            {
+                continue;
+            }
+
             guess.Letters
                 .Where(l => l.State is LetterState.ExactMatch or LetterState.Elsewhere)
                 .Select(l => l.Letter)

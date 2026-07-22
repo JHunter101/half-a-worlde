@@ -23,7 +23,7 @@ public interface IGameStateService
 }
 
 public class GameStateService(
-    IWordService wordService,
+    IWordRepository wordRepository,
     IGuessValidator guessValidator,
     IWordGenerator wordGenerator) : IGameStateService
 {
@@ -39,8 +39,7 @@ public class GameStateService(
     {
         settings ??= Session?.Settings;
         Guard.IsNotNull(settings);
-
-        string targetWord = await wordService.GetWordAsync(settings.WordLength);
+        string targetWord = await GetTargetWord(settings);
 
         Session = new GameSession
         {
@@ -48,7 +47,7 @@ public class GameStateService(
             TargetWord = targetWord
         };
 
-        var hints = await wordGenerator.GenerateHintsAsync(settings, targetWord);
+        IReadOnlyList<string> hints = await wordGenerator.GenerateHintsAsync(settings, targetWord);
         Session.QueueHints(hints);
 
         OnChange?.Invoke();
@@ -91,6 +90,7 @@ public class GameStateService(
                     Session.AddLetter(key[0]);
                     OnChange?.Invoke();
                 }
+
                 break;
         }
     }
@@ -110,6 +110,13 @@ public class GameStateService(
         {
             Session.Unlock();
         }
+    }
+
+    private async Task<string> GetTargetWord(GameSettings settings)
+    {
+        HashSet<string> words = await wordRepository.GetAllowedTargets(settings.WordLength);
+        string targetWord = words.ElementAt(Random.Shared.Next(words.Count));
+        return targetWord;
     }
 
     private void ProcessNextHint()
@@ -142,7 +149,7 @@ public class GameStateService(
     {
         Guard.IsNotNull(Session);
 
-        var guess = GuessEvaluator.EvaluateGuess(word, Session.TargetWord);
+        GuessWord guess = GuessEvaluator.EvaluateGuess(word, Session.TargetWord);
         Session.AddGuess(guess);
         Session.ClearInput();
 

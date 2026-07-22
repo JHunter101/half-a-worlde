@@ -14,7 +14,7 @@ public class GuessValidator(IWordRepository wordRepository) : IGuessValidator
             return false;
         }
 
-        var words = await wordRepository.GetWordsAsync(wordLength);
+        HashSet<string> words = await wordRepository.GetAllowedGuesses(wordLength);
 
         return words.Contains(guess);
     }

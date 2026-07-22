@@ -9,7 +9,7 @@ namespace Core.Test.Services;
 [TestClass]
 public sealed class GameStateServiceTests
 {
-    private readonly Mock<IWordService> _mockWordService = new();
+    private readonly Mock<IWordRepository> _mockWordRepository = new();
     private readonly Mock<IGuessValidator> _mockValidator = new();
     private readonly Mock<IWordGenerator> _mockGenerator = new();
     private readonly GameSettings _gameSettings = new() { WordLength = 5, MaxGuesses = 6 };
@@ -18,10 +18,10 @@ public sealed class GameStateServiceTests
     [TestInitialize]
     public void Initialize()
     {
-        _mockWordService.Setup(s => s.GetWordAsync(It.IsAny<int>())).ReturnsAsync("APPLE");
+        _mockWordRepository.Setup(s => s.GetAllowedTargets(It.IsAny<int>())).ReturnsAsync(["APPLE"]);
         _mockValidator.Setup(v => v.IsValid(It.IsAny<string>(), It.IsAny<int>())).ReturnsAsync(true);
         _mockGenerator.Setup(g => g.GenerateHintsAsync(It.IsAny<GameSettings>(), It.IsAny<string>())).ReturnsAsync([]);
-        _sut = new GameStateService(_mockWordService.Object, _mockValidator.Object, _mockGenerator.Object);
+        _sut = new GameStateService(_mockWordRepository.Object, _mockValidator.Object, _mockGenerator.Object);
     }
 
     [TestMethod]
@@ -129,7 +129,7 @@ public sealed class GameStateServiceTests
     [TestMethod]
     public async Task HandleInputAsync_WhenSessionNull_DoesNotInvokeOnChangeAsync()
     {
-        var localSut = new GameStateService(_mockWordService.Object, _mockValidator.Object, _mockGenerator.Object);
+        var localSut = new GameStateService(_mockWordRepository.Object, _mockValidator.Object, _mockGenerator.Object);
         bool changed = false;
         localSut.OnChange += () => changed = true;
 

@@ -13,6 +13,5 @@ builder.Services.AddScoped<IGameStateService, GameStateService>();
 builder.Services.AddScoped<IGuessValidator, GuessValidator>();
 builder.Services.AddScoped<IWordGenerator, WordGenerator>();
 builder.Services.AddScoped<IWordRepository, WordRepository>();
-builder.Services.AddScoped<IWordService, WordService>();
 
 await builder.Build().RunAsync();

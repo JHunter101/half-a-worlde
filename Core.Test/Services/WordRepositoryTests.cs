@@ -8,16 +8,58 @@ namespace Core.Test.Services;
 public sealed class WordRepositoryTests
 {
     [TestMethod]
-    public async Task GetWordsAsync_LoadsAndCachesWords()
+    public async Task GetAllowedTargets_LoadsAndCachesWords()
     {
-        var sut = Sut("APPLE\nBANAN\n");
+        const string TARGET_DATA = "TRGT1\nTRGT2\n";
+        WordRepository sut = Sut(TARGET_DATA);
 
-        var words = await sut.GetWordsAsync(5);
-        words.ShouldContain("APPLE");
-        words.ShouldContain("BANAN");
+        HashSet<string> words = await sut.GetAllowedTargets(5);
+        words.ShouldContain("TRGT1");
+        words.ShouldContain("TRGT2");
 
-        var cachedWords = await sut.GetWordsAsync(5);
+        HashSet<string> cachedWords = await sut.GetAllowedTargets(5);
         ReferenceEquals(words, cachedWords).ShouldBeTrue();
+    }
+
+    [TestMethod]
+    public async Task GetAllowedGuesses_LoadsAndCachesWords()
+    {
+        const string GUESS_DATA = "GUES1\nGUES2\n";
+        WordRepository sut = Sut(GUESS_DATA);
+
+        HashSet<string> words = await sut.GetAllowedGuesses(5);
+        words.ShouldContain("GUES1");
+        words.ShouldContain("GUES2");
+
+        HashSet<string> cachedWords = await sut.GetAllowedGuesses(5);
+        ReferenceEquals(words, cachedWords).ShouldBeTrue();
+    }
+
+    [TestMethod]
+    public async Task GetAllowedHints_LoadsAndCachesWords()
+    {
+        const string HINT_DATA = "HINT1\nHINT2\n";
+        WordRepository sut = Sut(HINT_DATA);
+
+        HashSet<string> words = await sut.GetAllowedHints(5);
+        words.ShouldContain("HINT1");
+        words.ShouldContain("HINT2");
+
+        HashSet<string> cachedWords = await sut.GetAllowedHints(5); // Fixed: was calling GetAllowedGuesses
+        ReferenceEquals(words, cachedWords).ShouldBeTrue();
+    }
+
+    [TestMethod]
+    public async Task GetAllowed_AllMethodsShareTheSameCacheInstance()
+    {
+        WordRepository sut = Sut("");
+
+        HashSet<string> hints = await sut.GetAllowedHints(5);
+        HashSet<string> guesses = await sut.GetAllowedGuesses(5);
+        HashSet<string> targets = await sut.GetAllowedTargets(5);
+
+        ReferenceEquals(hints, guesses).ShouldBeTrue();
+        ReferenceEquals(guesses, targets).ShouldBeTrue();
     }
 
     private static WordRepository Sut(string response)
@@ -34,6 +76,8 @@ public sealed class WordRepositoryTests
     {
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
+            request.RequestUri!.ToString().ShouldMatch(@"^http://localhost/data/\d+\.txt$");
+
             return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
             {
                 Content = new StringContent(response)
