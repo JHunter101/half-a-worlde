@@ -44,11 +44,10 @@ public sealed class InitializationUiSteps(BlazorTestContext context, IGameStateS
         Console.WriteLine(Repository);
         foreach (string word in words)
         {
-            char?[] letters = RenderedPage
+            char?[] letters = [.. RenderedPage
                 .FindComponent<GameBoard>()
                 .FindComponents<LetterTile>()
-                .Select(lt => lt.Instance.GuessLetter?.Letter)
-                .ToArray();
+                .Select(lt => lt.Instance.GuessLetter?.Letter)];
 
             letters
                 .Chunk(word.Length)

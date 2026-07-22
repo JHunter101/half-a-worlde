@@ -36,6 +36,6 @@ public sealed class Hooks(IObjectContainer container)
     }
 
     [AfterScenario]
-    public void AfterScenario(BlazorTestContext context)
+    public static void AfterScenario(BlazorTestContext context)
         => context.Dispose();
 }

@@ -1,8 +1,10 @@
-﻿[Binding]
-public sealed class CharTransformations
+﻿namespace Specifications.Transformations;
+
+[Binding]
+public static class CharTransformations
 {
     [StepArgumentTransformation]
-    public char TransformChar(string value)
+    public static char TransformChar(string value)
     {
         return value.Length != 1
             ? throw new ArgumentException($"Expected a single character, but got '{value}'.")
