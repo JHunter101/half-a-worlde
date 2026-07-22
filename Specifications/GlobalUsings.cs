@@ -1,0 +1,10 @@
+﻿global using AngleSharp.Dom;
+global using Beauo.Components;
+global using Core.Services;
+global using Core.Types;
+global using Microsoft.Extensions.DependencyInjection;
+global using Reqnroll;
+global using Shouldly;
+global using Specifications.Transformations;
+global using Web.Client.Components;
+global using Web.Client.Pages;

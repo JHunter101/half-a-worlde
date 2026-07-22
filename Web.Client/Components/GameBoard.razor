@@ -1,0 +1,90 @@
+﻿@using Beauo.Components.Animations
+@inject IGameStateService GameService
+@implements IDisposable
+
+<div>
+	<Column Align="AlignItemsClass.Center">
+		<Grid Columns="@Session.Settings.WordLength"
+			  ColumnMaxWidth="@SizeVar.Size64"
+			  Gap="GapClass.Tiny">
+
+			@for (int row = 0; row < Session.Settings.MaxGuesses; row++)
+			{
+				var y = row;
+				@for (int col = 0; col < Session.Settings.WordLength; col++)
+				{
+					var x = col;
+					<FlipWrapper AnimationToken="@GetFlipToken(y)"
+								 Index="col"
+								 OnAnimationComplete="@GetFlipCompleteCallback(x)"
+								 Stagger="TimeSpan.FromMilliseconds(100)">
+
+						<ShakeWrapper AnimationToken="_shakeToken"
+									  IsTarget="@IsShakeTarget(y)">
+
+							<LetterTile GuessLetter="@GetGuessLetter(y, x)" />
+
+						</ShakeWrapper>
+					</FlipWrapper>
+				}
+			}
+		</Grid>
+	</Column>
+</div>
+
+@code {
+	[Parameter, EditorRequired] public GameSession Session { get; set; }
+
+	private int[] _flipTokens = [];
+	private int _shakeToken;
+
+	protected override void OnInitialized()
+	{
+		GameService.OnInvalid += TriggerShake;
+		GameService.OnSuccess += TriggerFlips;
+
+		_flipTokens = new int[Session.Settings.MaxGuesses];
+	}
+
+    private void TriggerFlips()
+    {
+        _flipTokens[Session.Rows.Count -1]++;
+        StateHasChanged();
+    }
+
+    private void TriggerShake()
+    {
+        _shakeToken++;
+        StateHasChanged();
+    }
+
+    private GuessLetter? GetGuessLetter(int row, int col)
+    {
+		if (row < Session.Rows.Count)
+		{
+			return Session.Rows[row].Letters[col];
+		}
+
+		if (row == Session.CurrentRowIndex && col < Session.CurrentInput.Length)
+		{
+			return new(Session.CurrentInput[col], LetterState.Pending);
+		}
+        
+		return null;
+	}
+
+	private int GetFlipToken(int row) => _flipTokens[row];
+
+	private bool IsShakeTarget(int row) => row == Session.CurrentRowIndex;
+
+	private EventCallback GetFlipCompleteCallback(int col) =>
+		col == Session.Settings.WordLength - 1
+			? EventCallback.Factory.Create(this, () => GameService.NotifyAnimationComplete())
+			: default;
+
+	public void Dispose()
+	{
+		GameService.OnInvalid -= TriggerShake;
+		GameService.OnSuccess -= TriggerFlips;
+	}
+}

@@ -1,0 +1,41 @@
+﻿@page "/releases"
+@using Beauo.Components.Core
+@using Beauo.Components.Documentation
+
+<BeauoPage>
+	<ReleaseNotesTimeline>
+		<Release Major="0" Minor="1" Patch="0" Date="@(new DateOnly(2024, 05, 24))" Tags="@([ReleaseTag.Initial])">
+			<Overview>
+				Initial release of Half A Wordle, a minimalist daily word puzzle where players
+				guess 3- to 15-letter words starting with part of the answer already revealed.
+			</Overview>
+
+			<New>
+				<InlineList>
+					<InlineListItem>
+						Gameplay:
+						<InlineList>
+							<InlineListItem>3- to 15-letter words</InlineListItem>
+							<InlineListItem>Partially revealed starting state</InlineListItem>
+							<InlineListItem>Color-coded letter feedback</InlineListItem>
+						</InlineList>
+					</InlineListItem>
+
+					<InlineListItem>
+						Controls:
+						<InlineList>
+							<InlineListItem>Virtual and physical keyboard support</InlineListItem>
+						</InlineList>
+					</InlineListItem>
+
+					<InlineListItem>
+						Animations:
+						<InlineList>
+							<InlineListItem>Tile flips, row shakes, and victory bounces</InlineListItem>
+						</InlineList>
+					</InlineListItem>
+				</InlineList>
+			</New>
+		</Release>
+	</ReleaseNotesTimeline>
+</BeauoPage>

@@ -1,0 +1,16 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".github/workflows/build-and-publish.yml" />
+    <File Path=".gitignore" />
+    <File Path="LICENSE.txt" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="Core.Test/Core.Test.csproj" />
+    <Project Path="Specifications/Specifications.csproj" Id="2d9c0bba-db34-4ed6-b97c-79cd1e31b9f3" />
+    <Project Path="Test.Shared/Test.Shared.csproj" />
+  </Folder>
+  <Project Path="Core/Core.csproj" />
+  <Project Path="Web.Client/Web.Client.csproj" />
+</Solution>

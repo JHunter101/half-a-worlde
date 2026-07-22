@@ -1,0 +1,37 @@
+﻿@page "/"
+@using Beauo.Components.Core
+
+@inject IGameStateService GameService
+@implements IDisposable
+
+<BeauoPage NoScroll>
+	@if (GameService.Session == null)
+	{
+		<MainMenu />
+	}
+	else if (GameService.Session.State == SessionState.Playing)
+	{
+		<GamePlayView @key="GameService.Session" />
+	}
+	else
+	{
+		<GameOver />
+	}
+</BeauoPage>
+
+@code {
+	protected override void OnInitialized()
+	{
+		GameService.OnChange += HandleGameStateChanged;
+	}
+
+	private void HandleGameStateChanged()
+	{
+		InvokeAsync(StateHasChanged);
+	}
+
+	public void Dispose()
+	{
+		GameService.OnChange -= HandleGameStateChanged;
+	}
+}

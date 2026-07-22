@@ -1,0 +1,55 @@
+.keyboard {
+    flex-shrink: 0;
+    margin-top: auto;
+    width: min(90vw, 650px);
+    margin-bottom: -3.5dvh;
+
+    ::deep .row {
+        width: 100%;
+    }
+}
+
+.key,
+.fake-key {
+    aspect-ratio: 3 / 4;
+    flex-basis: 0;
+}
+
+.fake-key {
+    flex-grow: 0.5;
+}
+
+.key {
+    flex-grow: 1;
+    color: white;
+    background-color: #d3d6da;
+    border-radius: 4px;
+    border: none;
+    font-weight: bold;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    &:active {
+        transform: scale(0.95);
+    }
+
+    &.exact {
+        background-color: #6aaa64;
+    }
+
+    &.elsewhere {
+        background-color: #c9b458;
+    }
+
+    &.no-more-matches {
+        background-color: #787c7e;
+    }
+
+    &[data-key="ENTER"],
+    &[data-key="DEL"] {
+        flex-grow: 2;
+        aspect-ratio: unset;
+        align-self: stretch;
+    }
+}
